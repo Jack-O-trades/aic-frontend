@@ -107,10 +107,10 @@ function Scan() {
 
   /* ================== LOGOUT ================== */
   const handleLogout = async () => {
-  await stopScanner()
-  logout()
-  navigate("/login")
-
+    await stopScanner()
+    logout()
+    navigate("/login")
+  }
 
   /* ================== LIFECYCLE ================== */
   useEffect(() => {
