@@ -129,7 +129,7 @@ function Scan() {
             Policy • Practice • Future Pathways
           </p>
           <p style={styles.org}>
-            AIC – Siksha ‘O’ Anusandhan (SOA)
+            AIC – Siksha 'O' Anusandhan (SOA)
           </p>
         </div>
         <button onClick={handleLogout} style={styles.logoutBtn}>
@@ -139,65 +139,66 @@ function Scan() {
 
       {/* Scanner */}
       <section style={styles.scannerSection}>
-        <h2 style={styles.sectionTitle}>
-          Volunteer Check-in Scanner
-        </h2>
-        <p style={styles.instruction}>
-          Scan participant QR code
-        </p>
+        <div style={styles.scannerHeader}>
+          <div>
+            <h2 style={styles.sectionTitle}>Volunteer Check-in Scanner</h2>
+            <p style={styles.instruction}>Point camera at participant's QR code</p>
+          </div>
+          {loading && <p style={styles.loadingIndicator}>Processing…</p>}
+        </div>
 
-        <div id="qr-reader" style={styles.qrBox} />
+        <div style={styles.qrContainer}>
+          <div id="qr-reader" style={styles.qrBox} />
+        </div>
 
-        {loading && <p style={styles.info}>Processing…</p>}
-        {statusMsg && <p style={styles.error}>{statusMsg}</p>}
+        {statusMsg && <p style={styles.errorMessage}>{statusMsg}</p>}
       </section>
 
       {/* Result */}
       {result && result.valid && (
         <section style={styles.card}>
-          <h3 style={styles.cardTitle}>Participant Details</h3>
-
-          <div style={styles.detailRow}>
-            <span>Name</span>
-            <strong>{result.participant.name}</strong>
+          <div style={styles.cardHeader}>
+            <h3 style={styles.cardTitle}>Participant Details</h3>
+            {result.already_checked_in && (
+              <span style={styles.badgeAlreadyCheckedIn}>Already Checked In</span>
+            )}
           </div>
 
-          <div style={styles.detailRow}>
-            <span>Email</span>
-            <strong>{result.participant.email}</strong>
+          <div style={styles.detailsGrid}>
+            <div style={styles.detailGroup}>
+              <span style={styles.detailLabel}>Name</span>
+              <p style={styles.detailValue}>{result.participant.name}</p>
+            </div>
+
+            <div style={styles.detailGroup}>
+              <span style={styles.detailLabel}>Email</span>
+              <p style={styles.detailValue}>{result.participant.email}</p>
+            </div>
+
+            <div style={styles.detailGroup}>
+              <span style={styles.detailLabel}>College</span>
+              <p style={styles.detailValue}>{result.participant.college}</p>
+            </div>
+
+            <div style={styles.detailGroup}>
+              <span style={styles.detailLabel}>Role</span>
+              <p style={styles.detailValue}>
+                <span style={styles.roleBadge}>{result.participant.role}</span>
+              </p>
+            </div>
           </div>
 
-          <div style={styles.detailRow}>
-            <span>College</span>
-            <strong>{result.participant.college}</strong>
+          <div style={styles.actionButtons}>
+            {result.already_checked_in ? (
+              <button onClick={restartScanner} style={styles.primaryBtn}>
+                Scan Next Participant
+              </button>
+            ) : (
+              <button onClick={handleCheckin} style={styles.successBtn}>
+                Approve & Check-in
+              </button>
+            )}
           </div>
-
-          <div style={styles.detailRow}>
-            <span>Role</span>
-            <strong>{result.participant.role}</strong>
-          </div>
-
-          {result.already_checked_in ? (
-  <>
-    <div style={styles.badgeWarning}>
-      Already Checked In
-    </div>
-
-    <button
-      onClick={restartScanner}
-      style={styles.approveBtn}
-    >
-      Scan Next Participant
-    </button>
-  </>
-) : (
-  <button
-    onClick={handleCheckin}
-    style={styles.approveBtn}
-  >
-    Approve & Check-in
-  </button>
-)}
         </section>
       )}
     </div>
@@ -210,27 +211,30 @@ export default Scan
 
 const styles = {
   page: {
-    fontFamily: "system-ui, sans-serif",
-    background: "#f5f7fb",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+    background: "#0f1419",
     minHeight: "100vh",
-    padding: "16px"
+    padding: "20px",
+    color: "#e4e8eb"
   },
   header: {
-    background: "#0b1f3a",
+    background: "linear-gradient(135deg, #0b1f3a 0%, #0d2847 100%)",
     color: "#fff",
-    padding: "16px",
+    padding: "24px",
     borderRadius: "12px",
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: "24px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.3)"
   },
   title: {
     margin: 0,
-    fontSize: "20px",
+    fontSize: "26px",
     fontWeight: 700
   },
   subtitle: {
-    margin: "4px 0",
+    margin: "6px 0 2px 0",
     fontSize: "13px",
     opacity: 0.9
   },
@@ -239,78 +243,165 @@ const styles = {
     opacity: 0.8
   },
   logoutBtn: {
-    background: "#ffffff22",
-    border: "1px solid #ffffff55",
+    background: "rgba(255,255,255,0.1)",
+    border: "1px solid rgba(255,255,255,0.2)",
     color: "#fff",
-    padding: "8px 14px",
+    padding: "10px 18px",
     borderRadius: "8px",
-    cursor: "pointer"
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: 500,
+    transition: "all 0.2s"
   },
   scannerSection: {
-    marginTop: "20px",
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    textAlign: "center"
+    marginBottom: "24px",
+    background: "#1a1f26",
+    padding: "24px",
+    borderRadius: "10px",
+    border: "1px solid #2d3139",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+  },
+  scannerHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "20px"
   },
   sectionTitle: {
     margin: 0,
-    fontSize: "18px"
+    fontSize: "18px",
+    fontWeight: 700,
+    color: "#e4e8eb"
   },
   instruction: {
-    fontSize: "14px",
-    color: "#555",
-    marginBottom: "12px"
+    fontSize: "13px",
+    color: "#8b92a0",
+    margin: "6px 0 0 0"
   },
-  qrBox: {
-    width: "320px",
-    height: "320px",
-    margin: "0 auto"
-  },
-  info: {
-    marginTop: "10px",
-    color: "#0077cc"
-  },
-  error: {
-    marginTop: "10px",
-    color: "#c0392b"
-  },
-  card: {
-    marginTop: "20px",
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "12px"
-  },
-  cardTitle: {
-    marginBottom: "12px",
-    fontSize: "16px"
-  },
-  detailRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "6px 0",
-    borderBottom: "1px solid #eee",
-    fontSize: "14px"
-  },
-  badgeWarning: {
-    marginTop: "16px",
-    padding: "10px",
-    borderRadius: "8px",
-    background: "#fff3cd",
-    color: "#856404",
-    textAlign: "center",
+  loadingIndicator: {
+    margin: 0,
+    fontSize: "13px",
+    color: "#4fa3ff",
     fontWeight: 600
   },
-  approveBtn: {
-    marginTop: "16px",
+  qrContainer: {
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: "16px"
+  },
+  qrBox: {
     width: "100%",
-    padding: "14px",
-    background: "#0b5ed7",
+    maxWidth: "360px",
+    height: "360px",
+    borderRadius: "12px",
+    overflow: "hidden",
+    border: "2px solid #2d3139"
+  },
+  errorMessage: {
+    margin: "12px 0 0 0",
+    padding: "12px 14px",
+    background: "#3a1f1f",
+    border: "1px solid #663333",
+    borderRadius: "8px",
+    color: "#ff6b6b",
+    fontSize: "13px",
+    textAlign: "center"
+  },
+  card: {
+    background: "#1a1f26",
+    padding: "24px",
+    borderRadius: "10px",
+    border: "1px solid #2d3139",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+  },
+  cardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px",
+    paddingBottom: "16px",
+    borderBottom: "1px solid #2d3139"
+  },
+  cardTitle: {
+    margin: 0,
+    fontSize: "16px",
+    fontWeight: 700,
+    color: "#e4e8eb"
+  },
+  badgeAlreadyCheckedIn: {
+    display: "inline-block",
+    padding: "6px 12px",
+    background: "#1a3a2a",
+    color: "#4ade80",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: 600
+  },
+  detailsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+    gap: "16px",
+    marginBottom: "20px"
+  },
+  detailGroup: {
+    background: "#0f1419",
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #2d3139"
+  },
+  detailLabel: {
+    display: "block",
+    fontSize: "11px",
+    color: "#8b92a0",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+    marginBottom: "6px"
+  },
+  detailValue: {
+    margin: 0,
+    fontSize: "14px",
+    fontWeight: 600,
+    color: "#e4e8eb"
+  },
+  roleBadge: {
+    display: "inline-block",
+    padding: "4px 10px",
+    background: "#1e3a5f",
+    color: "#4fa3ff",
+    borderRadius: "4px",
+    fontSize: "12px",
+    fontWeight: 600,
+    textTransform: "capitalize"
+  },
+  actionButtons: {
+    display: "flex",
+    gap: "12px",
+    paddingTop: "16px",
+    borderTop: "1px solid #2d3139"
+  },
+  primaryBtn: {
+    flex: 1,
+    padding: "12px 16px",
+    background: "#0077cc",
     color: "#fff",
     border: "none",
-    borderRadius: "10px",
-    fontSize: "16px",
+    borderRadius: "8px",
+    fontSize: "14px",
     fontWeight: 600,
-    cursor: "pointer"
+    cursor: "pointer",
+    transition: "background 0.2s"
+  },
+  successBtn: {
+    flex: 1,
+    padding: "12px 16px",
+    background: "linear-gradient(135deg, #0077cc 0%, #0066aa 100%)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "14px",
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.2s",
+    boxShadow: "0 4px 12px rgba(0,119,204,0.3)"
   }
 }
