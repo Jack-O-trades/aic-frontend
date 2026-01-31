@@ -4,7 +4,6 @@ import api from "../utils/api"
 import { logout } from "../utils/auth"
 import { useNavigate } from "react-router-dom"
 
-/* ================== SOUND ================== */
 const playSuccessSound = () => {
   const audio = new Audio(
     "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"
@@ -12,30 +11,28 @@ const playSuccessSound = () => {
   audio.play().catch(() => {})
 }
 
-/* ================== COMPONENT ================== */
 function Scan() {
   const [result, setResult] = useState(null)
   const [statusMsg, setStatusMsg] = useState("")
   const [loading, setLoading] = useState(false)
-
   const navigate = useNavigate()
-
   const scannerRef = useRef(null)
-  const scanLockRef = useRef(false) // 🔒 prevents multiple scans
+  const scanLockRef = useRef(false)
 
-  /* ================== START SCANNER ================== */
   const startScanner = async () => {
     if (scannerRef.current || result) return
 
     try {
       scannerRef.current = new Html5Qrcode("qr-reader")
-
       await scannerRef.current.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: (viewfinderWidth, viewfinderHeight) => {
-  const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.7
-  return { width: size, height: size }
-} },
+        {
+          fps: 10,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.7
+            return { width: size, height: size }
+          }
+        },
         async (decodedText) => {
           if (scanLockRef.current) return
           scanLockRef.current = true
@@ -51,9 +48,7 @@ function Scan() {
             setStatusMsg("")
           } catch (err) {
             console.error("Scan failed:", err)
-            setStatusMsg(
-              err?.response?.data?.message || "Invalid QR code"
-            )
+            setStatusMsg(err?.response?.data?.message || "Invalid QR code")
             scanLockRef.current = false
             await restartScanner()
           } finally {
@@ -67,10 +62,8 @@ function Scan() {
     }
   }
 
-  /* ================== STOP SCANNER ================== */
   const stopScanner = async () => {
     if (!scannerRef.current) return
-
     try {
       await scannerRef.current.stop()
       await scannerRef.current.clear()
@@ -81,7 +74,6 @@ function Scan() {
     }
   }
 
-  /* ================== RESTART SCANNER ================== */
   const restartScanner = async () => {
     setResult(null)
     setStatusMsg("")
@@ -90,7 +82,6 @@ function Scan() {
     setTimeout(() => startScanner(), 400)
   }
 
-  /* ================== CHECK-IN ================== */
   const handleCheckin = async () => {
     try {
       await api.post("/checkin", {
@@ -105,39 +96,30 @@ function Scan() {
     }
   }
 
-  /* ================== LOGOUT ================== */
   const handleLogout = async () => {
     await stopScanner()
     logout()
     navigate("/login")
   }
 
-  /* ================== LIFECYCLE ================== */
   useEffect(() => {
     startScanner()
     return () => stopScanner()
   }, [])
 
-  /* ================== UI ================== */
   return (
     <div style={styles.page}>
-      {/* Header */}
       <header style={styles.header}>
         <div>
           <h1 style={styles.title}>AI for Education</h1>
-          <p style={styles.subtitle}>
-            Policy • Practice • Future Pathways
-          </p>
-          <p style={styles.org}>
-            AIC – Siksha 'O' Anusandhan (SOA)
-          </p>
+          <p style={styles.subtitle}>Policy • Practice • Future Pathways</p>
+          <p style={styles.org}>AIC – Siksha 'O' Anusandhan (SOA)</p>
         </div>
         <button onClick={handleLogout} style={styles.logoutBtn}>
           Logout
         </button>
       </header>
 
-      {/* Scanner */}
       <section style={styles.scannerSection}>
         <div style={styles.scannerHeader}>
           <div>
@@ -154,7 +136,6 @@ function Scan() {
         {statusMsg && <p style={styles.errorMessage}>{statusMsg}</p>}
       </section>
 
-      {/* Result */}
       {result && result.valid && (
         <section style={styles.card}>
           <div style={styles.cardHeader}>
@@ -206,8 +187,6 @@ function Scan() {
 }
 
 export default Scan
-
-/* ================== STYLES ================== */
 
 const styles = {
   page: {
